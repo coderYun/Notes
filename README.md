@@ -7,7 +7,7 @@
 
   - spring框架结构
 
-    ![spring框架](F:\1.PNG) 
+    ![spring框架](./image/1.PNG) 
 
 
 
@@ -50,7 +50,7 @@
 
 - BeanFactory的整体体系结构
 
-  ![BeanFactory的体系结构](F:\2.png)
+  ![BeanFactory的体系结构](./image/2.png)
 
 - **BeanFactory和ApplicationContext的区别**
 
@@ -96,7 +96,7 @@
 
      **如图**
 
-     ![Bean的生命周期](F:\3.jpg)
+     ![Bean的生命周期](./image/3.jpg)
 
 - **spring中单例Bean的线程安全问题**
 
@@ -174,7 +174,7 @@
 
 1. **springMVC的工作流程**:
 
-    ![springmvc工作流程](F:/3.png)
+    ![springmvc工作流程](./image/3.png)
 
     (1). 用户发送请求至前端控制器DispatcherServlet
 
