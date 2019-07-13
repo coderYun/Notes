@@ -7,7 +7,7 @@
 
   - spring框架结构
 
-    ![spring框架](./image/1.PNG) 
+    ![spring框架](./image/1.png) 
 
 
 
