@@ -34,13 +34,13 @@
 
 - **如图所示**
 
-   ![java集合结构](../image/4.png)
+   ![java集合结构](./image/4.png)
 
 
 
 ​            **这个看起来可能有点复杂，你可以看如下这张图，可能更清晰一点(一些常用的)**
 
-​             ![java集合类结构](../image/5.jpg)
+​             ![java集合类结构](./image/5.jpg)
 
 - **ArrayList，LinkedList和Vetor的实现原理与区别**
 
@@ -68,7 +68,7 @@
 
   ​        HashMap的主干是一个Entry数组。Entry（Entry是HashMap中的一个静态内部类，既是数组元素又是链表的头节点）是HashMap的基本组成单元，每一个Entry包含一个key-value键值对以及一个指向链表下一结点的指针。**简单来说，HashMap由数组+链表组成的，数组是HashMap的主体，链表则主要为了解决哈希冲突而存在的，如果定位到的数组位置不含链表（当前entry的next指向null）,那么对于查找，添加等操作很快，仅需一次寻址即可；如果定位到的数组包含链表，对于添加操作，其时间复杂度为O(n)，首先遍历链表，存在即覆盖，否则新增；对于查找操作来讲，仍需遍历链表，然后通过key对象的equals方法逐一比对查找。所以，性能考虑，HashMap中的链表出现越少，性能才会越好**
 
-  ![hashmap底层原理](../image/5.png)
+  ![hashmap底层原理](./image/5.png)
 
 **<font color="red">put方法的实现：</font>1.**对key做null检查。如果key是null，会被存储到table[0]，因为null的hash值总是0。
 
@@ -108,7 +108,7 @@
 
    ConcurrentHashMap与HashMap相比，最关键的是要理解一个概念：**segment**。 Segment其实就是一个Hashmap 。Segment也包含一个HashEntry数组，数组中的每一个HashEntry既是一个键值对，也是一个链表的头节点。 Segment对象在ConcurrentHashMap集合中有2的N次方个，共同保存在一个名为**segments的数组**当中。
 
-  ![currenthashmap](../image/6.png)
+  ![currenthashmap](./image/6.png)
 
 
 
