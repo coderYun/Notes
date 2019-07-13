@@ -34,13 +34,13 @@
 
 - **如图所示**
 
-   ![java集合结构](./image/4.png)
+   ![java集合结构](../image/4.png)
 
 
 
 ​            **这个看起来可能有点复杂，你可以看如下这张图，可能更清晰一点(一些常用的)**
 
-​             ![java集合类结构](./image/5.jpg)
+​             ![java集合类结构](../image/5.jpg)
 
 - **ArrayList，LinkedList和Vetor的实现原理与区别**
 
@@ -108,7 +108,7 @@
 
    ConcurrentHashMap与HashMap相比，最关键的是要理解一个概念：**segment**。 Segment其实就是一个Hashmap 。Segment也包含一个HashEntry数组，数组中的每一个HashEntry既是一个键值对，也是一个链表的头节点。 Segment对象在ConcurrentHashMap集合中有2的N次方个，共同保存在一个名为**segments的数组**当中。
 
-  ![currenthashmap](./image/6.png)
+  ![currenthashmap](../image/6.png)
 
 
 
