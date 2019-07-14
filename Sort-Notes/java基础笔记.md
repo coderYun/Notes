@@ -183,6 +183,368 @@ ConcurrentHashMap是一个双层哈希表。在一个总的哈希表下面，有
 
 
 
+### 多线程
+
+- **线程和进程的区别**
+
+  - 进程是资源分配的最小单位，线程是cpu调度的最小单位。
+  - 进程间相互独立，进程有独立的地址，相互不影响，而线程只是进程的不同执行路径。
+  - 进程间的切换开销比线程间的切换开销大。
+  - 进程之间不能共享资源，一个进程至少有一个线程，同一个进程的各线程共享整个进程的资源(寄存器，堆栈，上下文)。
+
+- **Thread中start()和run()方法的区别:**
+
+  - 调用start()方法会创建一个新的子线程并启动
+
+  - 调用run()方法只是Thread的一个普通方法的调用
+
+    如图我们可以从源码层面看到调用start()后 的一个流程
+
+    ![start()方法的流程](../image/11.png)
+
+    
+
+- **Thread和Runnable是什么关系**
+
+  - Thread是实现了Runnable接口的类，使得run支持多线程
+  - 因为Java中类的单一继承原则，推荐使用实现Runnable接口的方式来实现多线程。
+
+- **如何给run()传参**
+
+  - 构造函数传参
+  - 成员变量传参
+  - 回调函数传参
+
+- **如何实现处理线程的返回值**
+
+  1. 主线程等待法
+
+  2. 使用Thread类的join()阻塞当前线程来等待子线程处理完毕
+
+  3. 通过Callable接口实现：通过FutureTask或者线程池获取
+
+      通过FutureTask:
+
+      ![futureTask](../image/12.png)
+
+
+
+​       ![futurtask](../image/13.png)
+
+​       通过线程池:
+
+​       ![线程池](../image/14.png)
+
+- **java线程的六种状态**
+  1. 初始(NEW)：新创建了一个线程对象，但还没有调用start()方法。
+  2. 运行(RUNNABLE)：Java线程中将就绪（ready）和运行中（running）两种状态笼统的称为“运行”。
+  线程对象创建后，其他线程(比如main线程）调用了该对象的start()方法。该状态的线程位于可运行线程池中，等待被线程调度选中，获取CPU的使用权，此时处于就绪状态（ready）。就绪状态的线程在获得CPU时间片后变为运行中状态（running）。
+  3. 阻塞(BLOCKED)：表示线程阻塞于锁。
+  4. 等待(WAITING)：进入该状态的线程需要等待其他线程做出一些特定动作（通知或中断）。
+  5. 超时等待(TIMED_WAITING)：该状态不同于WAITING，它可以在指定的时间后自行返回。
+  6. 终止(TERMINATED)：表示该线程已经执行完毕。 ![线程状态](../image/15.png)
+
+
+
+- **sleep()和wait()的区别**
+
+  - sleep()是Thread类中的方法，而wait()是Object类中的方法。
+  - sleep()可以在任何地方中使用的，而wait()只能在synchronized方法中使用或者在synchronized块中使用
+  - **sleep()方法不会释放锁，而只会让出cpu,wait()不仅会让出cpu，而且还会释放锁**
+
+- **notify()和notifyAll()的区别**
+
+  - notifyAll()会让所有处于等待池中的线程全部进入锁池中去竞争获取锁的机会
+  - notify()会随机从处于等待池中的线程选取一个线程进入到锁池中去竞争获取锁的机会。
+
+- **yiled()**
+
+  - 当调用Thread.yelid()的时候，会给线程调度器一个当前线程愿意让出cpu使用的暗示，但是线程调度器可能会忽略这个暗示。
+
+- **如何中断线程**
+
+  - 通过调用stop()方法(这种方法太过于暴力，而且不安全，已经摒弃了)
+  - 通过调用suspend()和resume()（同上，已经被摒弃了）
+  - **调用interrupt(),通知线程应该中断了**(目前使用的方法)
+    1. 如果线程处于阻塞状态,那么线程立即退出被阻塞状态，并且抛出一个InterruptException异常。
+    2. 如果线程处于正常运行状态，那么只是把该线程的中断标志设置为true,中断标志设置为true的线程将继续运行，不收影响。你需要经常检查中断标志来自行停止线程。
+
+- **线程池**
+
+  - **使用线程池的好处**
+
+    1. **降低资源消耗。**通过重复利用已创建的线程降低线程创建和销毁造成的消耗。
+
+    2. **提高响应速度。**当任务到达时，任务可以不需要等到线程创建就能立即执行。
+
+    3. **提高线程的可管理性。**线程是稀缺资源，如果无限制地创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一分配、调优和监控。
+
+  - **线程池源码分析**
+
+    - 线程池的创建：
+  
+    > public ThreadPoolExecutor( int corePoolSize,    //核心线程的数量
+    > int maximumPoolSize,    //最大线程数量
+    > long keepAliveTime,    //超出核心线程数量以外的线程空余存活时间
+    > TimeUnit unit,    //存活时间的单位
+    > BlockingQueue<Runnable> workQueue,    //保存待执行任务的队列
+    > ThreadFactory threadFactory,    //创建新线程使用的工厂
+    > RejectedExecutionHandler handler // 当任务无法执行时的处理器
+    > ) {...}
+    
+    - 在创建线程池时会传入多个参数，分别为：
+    
+      **corePoolSize：线程池核心线程数量**
+    
+      ​    核心线程会一直存活，即使没有任务需要执行。当线程数小于核心线程数时，即使有线程空闲，线程池也会优先创建新线程处理。设置allowCoreThreadTimeout=true（默认false）时，核心线程会超时关闭。如果调用了线程池的prestartAllCoreThreads()方法，线程池会提前创建并启动所有基本线程。
+    
+      **maximumPoolSize:线程池最大线程数量**
+    
+      ​    **当线程数>=corePoolSize，且任务队列已满时，线程池会创建新线程来处理任务。当线程数等于maxPoolSize，且任务队列已满时，线程池会拒绝处理任务而抛出异常。**
+    
+      **keepAliverTime：非核心线程存活时间**
+    
+      ​    **当活跃线程数大于核心线程数时，空闲的多余线程最大存活时间，**当线程空闲时间达到keepAliveTime时，线程会退出，直到线程数量=corePoolSize。如果allowCoreThreadTimeout=true，则会直到线程数量=0。
+    
+      **unit：存活时间的单位**
+    
+      **workQueue：存放任务的队列**
+    
+      ​    用来存储等待执行的任务，决定了线程池的排队策略，可以选择以下几个阻塞队列：
+    
+         1. **ArrayBlockingQueue：**是一个基于数组结构的有界阻塞队列，此队列按FIFO（先进先出）原则对元素进行排序。
+    
+            
+    
+         2.  **LinkedBlockingQueue：**一个基于链表结构的阻塞队列，此队列按FIFO排序元素，吞吐量通常要高于ArrayBlockingQueue。
+         3. **SynchronousQueue：**不存储元素的阻塞队列，每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于 LinkedBlockingQueue。
+         4.  **PriorityBlockingQueue：**一个具有优先级的无限阻塞队列。
+    
+      **handler，超出线程范围和队列容量的任务的处理程序。**RejectedExecutionHandler（饱和策略）：当队列和线程池都满了，说明线程池处于饱和状态，那么必须采取一种策略处理提交的新任务。这个策略默认情况下是AbortPolicy，表示无法处理新任务时抛出异常。在JDK 1.5中Java线程池框架提供了以下4种策略。
+    
+      ​    AbortPolicy：直接抛出异常。（默认的策略）
+    
+      ​    CallerRunsPolicy：只用调用者所在线程来运行任务。
+    
+      ​    DiscardPolicy：不处理，丢弃掉。
+    
+      ​    DiscardOldestPolicy：把队列里待最久的那个任务扔了，然后再调用execute()试试看能行不。
+    
+    - **向线程池中提交任务**
+    
+      可以使用两个方法向线程池提交任务，分别为execute()和submit()方法
+    
+         <font  color="red"> execute()方法用于提交不需要返回值的任务</font>，所以无法判断任务是否被线程池执行成功。
+    
+      ​    <font color="red">submit()方法用于提交需要返回值的任务</font>。线程池会返回一个future类型的对象，通过这个future对象可以判断任务是否执行成功，并且可以通过future的get()方法来获取返回值，get()方法会阻塞当前线程直到任务完成，而使用get（long timeout，TimeUnit unit）方法则会阻塞当前线程一段时间后立即返回，这时候有可能任务没有执行完。
+    
+      
+    
+      **execute()方法逻辑为**：（就是线程池的原理）
+    
+      ​    1.如果线程池中的线程数量少于corePoolSize(核心线程数量),那么会直接开启一个新的核心线程来执行任务,即使此时有空闲线程存在. 
+    
+      ​    2.如果线程池中线程数量大于等于corePoolSize(核心线程数量),那么任务会被插入到任务队列中排队等待被执行.此时并不添加新的线程. 
+    
+      ​    3.如果在步骤2中由于任务队列已满导致无法将新任务进行排队,这个时候有两种情况:
+    
+      ​        线程数量未达到maximumPoolSize(线程池最大线程数) , 立刻启动一个非核心线程来执行任务.
+    
+      ​        线程数量已达到maximumPoolSize(线程池最大线程数) , 拒绝执行此任务.ThreadPoolExecutor会通过RejectedExecutionHandler,抛出RejectExecutionException异常。
+    
+      ![流程图](../image/16.png)
+
+​        
+
+​              
+
+   **关闭线程池**
+
+-   可以**通过调用线程池的shutdown或shutdownNow方法来关闭线程池**。**它们的原理是遍历线程池中的工作线程，然后逐个调用线程的interrupt方法来中断线程，所以无法响应中断的任务可能永远无法终止。**shutdownNow首先将线程池的状态设置成STOP，然后尝试**停止所有的正在执行或暂停任务**的线程，并返回等待执行任务的列表，而shutdown只是将线程池的状态设置成SHUTDOWN状态，然后**中断所有没有正在执行任务**的线程。
+
+**合理的配置线程池**
+
+​    CPU密集型任务应配置尽可能小的线程，如配置N（cpu）+1个线程的线程池。由于IO密集型任务线程并不是一直在执行任务，则应配置尽可能多的线程，如2*Ncpu。混合型的任务，如果可以拆分，将其拆分成一个CPU密集型任务和一个IO密集型任务，只要这两个任务执行的时间相差不是太大，那么分解后执行的吞吐量将高于串行执行的吞吐量。如果这两个任务执行时间相差太大，则没必要进行分解。
+
+**整个线程池的状态转换**
+
+![线程池的流程](../image/17.png)
+
+![流程图](../image/18.png)
+
+
+
+
+
+- **Executor框架**
+
+   ![Execotr框架](../image/21.png)
+
+  
+
+  **任务**：包括被执行任务需要实现的接口，Runnable接口或Callable接口（需要使用一个类实现他们）
+
+**任务的执行**：包括任务执行机制的核心接口Executor，以及继承自Executor的ExecutorService接口，Executor框架有两个关键类实现了ExecutorService接口。**（ThreadPoolExecutor和ScheduledThreadPoolExecutor）。**
+
+​    **异步计算的结果**：包括接口Future和实现Future接口的FutureTask类。
+
+
+
+注：**Executor是一个接口，它是Executor框架的基础，它将任务的提交与任务的执行分离开，**ThreadPoolExecutor是线程池的核心实现类，用来执行被提交的任务。ScheduledThreadPoolExecutor是一个实现类，可以在给定的延迟后运行命令，或者定期执行命令。ScheduledThreadPoolExecutor比Timer更灵活，功能更强大。
+
+​     
+
+-  **几种常见的线程池以及使用场景**
+
+  - newFixedThreadPool（固定大小的线程池）
+  - newSingleThreadExecutor（单线程线程池）
+  - newCachedThreadPool（可缓存线程的线程池）
+  - newScheduledThreadPool(用于定时任务)
+
+  **<font color="red">newFixedThreadPool</font>**
+
+  >```
+  >public static ExecutorService newFixedThreadPool(int nThreads) {
+  >    return new ThreadPoolExecutor(nThreads, nThreads,
+  >                                  0L, TimeUnit.MILLISECONDS,
+  >                                  new LinkedBlockingQueue<Runnable>());
+  >}
+  >```
+  >
+  >**线程池特点：**
+  >
+  >- 核心线程数和最大线程数大小一样
+  >-  `keepAliveTime`为0
+  >- 阻塞队列是`LinkedBlockingQueue` 
+  >
+  >它是固定大小的线程池，其核心线程数和最大线程数大小一样。并且阻塞队列用的是`LinkedBlockingQueue`，也就是说线程最大数这个参数失效了基本，所以不会出现外包线程的存在，所以也可以认为`keepAliveTime`参数是一个摆设。除非`allowCoreThreadTimeOut`方法的调用。
+  >
+  >**该线程池的工作机制是：**
+  >
+  >1. 线程数少于核心线程数，也就是设置的线程数时，新建线程执行任务
+  >2. 线程数等于核心线程数后，将任务加入阻塞队列 
+  >   1. 由于队列容量非常大(`Integer.MAX_VALUE`)，可以一直加加加。(当线程池中的任务比较特殊时，比如关于数据库的长时间的IO操作，可能导致OOM)
+  >3. 执行完任务的线程反复去队列中取任务执行
+  >
+  >**适用场景：**
+  >
+  >`FixedThreadPool` 适用于处理CPU密集型的任务，确保CPU在长期被工作线程使用的情况下，尽可能的少的分配线程即可。一般Ncpu+1
+  >
+  >
+
+**<font color="red">newSingleThreadExcutor</font>**
+
+>```
+>public static ExecutorService newSingleThreadExecutor() {
+>    return new FinalizableDelegatedExecutorService
+>        (new ThreadPoolExecutor(1, 1,
+>                                0L, TimeUnit.MILLISECONDS,
+>                                new LinkedBlockingQueue<Runnable>()));
+>}
+>```
+>
+>**线程池特点：**
+>
+>- 核心线程数和最大线程数大小一样且都是1
+>-  `keepAliveTime`为0
+>- 阻塞队列是`LinkedBlockingQueue` 
+>
+>**该线程池的工作机制是：**
+>
+>1. 线程池中没有线程时，新建一个线程执行任务
+>2. 有一个线程以后，将任务加入阻塞队列，不停加加加
+>3. 唯一的这一个线程不停地去队列里取任务执行
+>
+>**适用场景：**
+>
+>`SingleThreadExecutor`适用于串行执行任务的场景，每个任务必须按顺序执行，不需要并发执行。
+
+**<font color="red">newCachedThreadPool</font>**
+
+>```
+>public static ExecutorService newCachedThreadPool() {
+>    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+>                                  60L, TimeUnit.SECONDS,
+>                                  new SynchronousQueue<Runnable>());
+>}
+>```
+>
+>**线程池特点：**
+>
+>- 核心线程数为0，且最大线程数为`Integer.MAX_VALUE` 
+>- 阻塞队列是`SynchronousQueue` 
+>
+>SynchronousQueue：一个不存储元素的阻塞队列。每个插入操作必须等到另一个线程调用移除操作，否则插入操作一直处于阻塞状态，吞吐量通常要高于`LinkedBlockingQueue`
+>
+>锁当提交任务的速度大于处理任务的速度时，每次提交一个任务，就必然会创建一个线程。极端情况下会创建过多的线程，耗尽 CPU 和内存资源。由于空闲 60 秒的线程会被终止，长时间保持空闲的 CachedThreadPool 不会占用任何资源。
+>
+>**该线程池的工作机制是：**
+>
+>1. 没有核心线程，直接向`SynchronousQueue`中提交任务
+>2. 如果有空闲线程，就去取出任务执行；如果没有空闲线程，就新建一个
+>3. 执行完任务的线程有60秒生存时间，如果在这个时间内可以接到新任务，就可以继续活下去，否则就拜拜
+>
+>**适用场景：**
+>
+>`CachedThreadPool` 用于并发执行大量短期的小任务。
+
+**<font color="red">newScheduledThreadPool</font>**
+
+>```
+>public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+>    return new ScheduledThreadPoolExecutor(corePoolSize);
+>}
+>
+>
+>public ScheduledThreadPoolExecutor(int corePoolSize) {
+>    super(corePoolSize, Integer.MAX_VALUE,
+>          DEFAULT_KEEPALIVE_MILLIS, MILLISECONDS,
+>          new DelayedWorkQueue());
+>}
+>
+>private static final long DEFAULT_KEEPALIVE_MILLIS = 10L;
+>```
+>
+>**线程池特点：**
+>
+>- 最大线程数为`Integer.MAX_VALUE` 
+>- 阻塞队列是`DelayedWorkQueue` 
+>
+>ScheduledThreadPoolExecutor 添加任务提供了另外两个方法：
+>
+>- scheduleAtFixedRate() ：按某种速率周期执行
+>- scheduleWithFixedDelay()：在某个延迟后执行
+>
+>两种方法的内部实现都是创建了一个`ScheduledFutureTask`对象封装了任务的延迟执行时间及执行周期，并调用`decorateTask()`方法转成`RunnableScheduledFuture`对象，然后添加到延迟队列中。
+>
+>DelayQueue：中封装了一个优先级队列，这个队列会对队列中的`ScheduledFutureTask` 进行排序，两个任务的执行 time 不同时，time 小的先执行；否则比较添加到队列中的`ScheduledFutureTask`的顺序号 `sequenceNumber` ，先提交的先执行。
+>
+>**该线程池的工作机制是：**
+>
+>1. 调用上面两个方法添加一个任务
+>2. 线程池中的线程从 DelayQueue 中取任务
+>3. 然后执行任务
+>
+>具体执行步骤：
+>
+>1. 线程从 DelayQueue 中获取 time 大于等于当前时间的 
+>
+>   ```
+>   ScheduledFutureTask
+>   ```
+>
+>   1. `DelayQueue.take()`
+>
+>2. 执行完后修改这个 task 的 time 为下次被执行的时间
+>
+>3. 然后再把这个 task 放回队列中 
+>
+>   1. `DelayQueue.add()`
+>
+>**适用场景：**
+>
+>`ScheduledThreadPoolExecutor`用于需要多个后台线程执行周期任务，同时需要限制线程数量的场景。
+
 
 
 ### 异常与IO流
