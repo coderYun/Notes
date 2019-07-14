@@ -58,7 +58,7 @@
   
      ​    ArrayList 和 Vector 中，从指定的位置（用 index）检索一个对象，或在集合的末尾插入、删除一个对象的时间是一样的，可表示为 O(1)。但是，如果在集合的其他位置增加或移除元素那么花费的时间是 O（n）。LinkedList 中，在插入、删除集合中任何位置的元素所花费的时间都是O(1)，但它在索引一个元素的时候比较慢 O（n）。所以，如果只是查找特定位置的元素或只在集合的末端增加、移除元素，那么使用Vector 或 ArrayList 都可以。如果是对其它指定位置的插入、删除操作，最好选择 LinkedList。 
   
-- **集合中的fail-fast机制 **
+- **集合中的** **fail-fast** **机制 **
 
   ​    假设存在两个线程（线程1、线程 2），线程1通过Iterator在遍历集合A中的元素，在某个时候线程2修改了集合 A 的结构（是结构上面的修改，而不是简单的修改集合元素的内容），那么这 个时候程序就会抛出ConcurrentModificationException异常，从而产生fail-fast机制。
 
@@ -124,7 +124,7 @@ ConcurrentHashMap是一个双层哈希表。在一个总的哈希表下面，有
 
 3.再次通过hash值，定位到Segment当中数组的具体位置。
 
-**<font color="red">Put方法</font>**
+<font color="red">**Put方法：**</font>
 
 1.为输入的Key做Hash运算，得到hash值。
 
