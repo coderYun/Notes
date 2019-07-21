@@ -4,8 +4,8 @@
 
 2. [spring相关](./Sort-Notes/spring学习笔记.md)
 
-3. [JVM相关](../Sort-Notes/JVM.md)
+3. [JVM相关](./Sort-Notes/JVM.md)
 
-4. [数据库](../Sort-Notes/数据库.md)
+4. [数据库](./Sort-Notes/数据库.md)
 
    
