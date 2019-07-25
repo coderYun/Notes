@@ -218,7 +218,7 @@
 
    3)   清晰的角色分配:前端控制器(dispatcherServlet) , 请求到处理器映射（handlerMapping),  处理器适配器（HandlerAdapter), 视图解析器（ViewResolver）。
 
-4. **SpringMVC怎么样设定重定向和转发的****SpringMvc用什么对象从后台向前台传递数据的？**
+4. **SpringMVC怎么样设定重定向和转发的，SpringMvc用什么对象从后台向前台传递数据的？**
 
    答：通过ModelMap对象,可以在这个对象里面用put方法,把对象加到里面,前台就可以通过el表达式拿到。
 
